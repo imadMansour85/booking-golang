@@ -1,20 +1,40 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
+
+	"github.com/imadMansour85/bookings-app/internal/models"
+	"github.com/imadMansour85/bookings-app/internal/service"
 )
 
-func BookingHandler(w http.ResponseWriter, r *http.Request) {
+func JsonFormatter(r *http.Request, data interface{}) error {
 	defer r.Body.Close()
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		fmt.Println(body)
-		return
+	if err := json.NewDecoder(r.Body).Decode(data); err != nil {
+		return fmt.Errorf("failed to parse JSON data: %v", err)
 	}
-	log.Printf("Request Body: %s", body)
+	return nil
+}
+func BookingHandler(w http.ResponseWriter, r *http.Request) {
+
+	switch r.Method {
+	case http.MethodPost:
+		var booking models.Booking
+		if err := JsonFormatter(r, &booking); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		service.CreateBooking(booking)
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(booking)
+
+	case http.MethodGet:
+		bookingsList := service.ListBookings()
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(bookingsList)
+	}
+
 	// service.CreateBooking()
 }
 

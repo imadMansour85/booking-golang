@@ -1,13 +1,14 @@
 package service
 
-import "booking-system/internal/repository"
+import (
+	"github.com/imadMansour85/bookings-app/internal/models"
+	"github.com/imadMansour85/bookings-app/internal/repository"
+)
 
-type Booking struct {
-	ID       string `json:"id"`
-	Customer string `json:"customer"`
-	Date     string `json:"date"`
+func CreateBooking(booking models.Booking) {
+	repository.SaveBooking(booking)
 }
 
-func CreateBooking(booking Booking) {
-	repository.SaveBooking(booking)
+func ListBookings() []models.Booking {
+	return repository.GetAllBookings()
 }
